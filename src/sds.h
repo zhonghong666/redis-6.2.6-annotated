@@ -44,6 +44,17 @@ typedef char *sds;
 
 /* Note: sdshdr5 is never used, we just access the flags byte directly.
  * However is here to document the layout of type 5 SDS strings. */
+
+// __attribute__ ((__packed__)) 的用意是为了让编译器以紧凑模式来分配内存
+// 如果没有该字段，编译器会按照struct中的字段进行内存对齐
+// 这样便无法保证header和sds的数据部分紧紧相邻了，也就无法按照固定的偏移量来获取flags字段
+
+/**
+ * len: 字符串真正的长度，不包含空终止字符（'\0'）
+ * alloc: 字符串最大容量，不包含Header和空终止字符（'\0'）
+ * flags: header的类型
+ * buf: 数据空间
+ */
 struct __attribute__ ((__packed__)) sdshdr5 {
     unsigned char flags; /* 3 lsb of type, and 5 msb of string length */
     char buf[];
@@ -72,17 +83,18 @@ struct __attribute__ ((__packed__)) sdshdr64 {
     unsigned char flags; /* 3 lsb of type, 5 unused bits */
     char buf[];
 };
-
+// 5种header类型，flags取值为0~4
 #define SDS_TYPE_5  0
 #define SDS_TYPE_8  1
 #define SDS_TYPE_16 2
 #define SDS_TYPE_32 3
 #define SDS_TYPE_64 4
-#define SDS_TYPE_MASK 7
+#define SDS_TYPE_MASK 7    // 类型掩码
 #define SDS_TYPE_BITS 3
-#define SDS_HDR_VAR(T,s) struct sdshdr##T *sh = (void*)((s)-(sizeof(struct sdshdr##T)));
-#define SDS_HDR(T,s) ((struct sdshdr##T *)((s)-(sizeof(struct sdshdr##T))))
-#define SDS_TYPE_5_LEN(f) ((f)>>SDS_TYPE_BITS)
+// 宏定义中的##是将两个符号连接成一个，如sdshdr和8（T为8）合成sdshdr8
+#define SDS_HDR_VAR(T,s) struct sdshdr##T *sh = (void*)((s)-(sizeof(struct sdshdr##T)));    // 获取header头指针
+#define SDS_HDR(T,s) ((struct sdshdr##T *)((s)-(sizeof(struct sdshdr##T))))    // 获取header头指针
+#define SDS_TYPE_5_LEN(f) ((f)>>SDS_TYPE_BITS)    // 获取sdshdr5的长度
 
 static inline size_t sdslen(const sds s) {
     unsigned char flags = s[-1];
