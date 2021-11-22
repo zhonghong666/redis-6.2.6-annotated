@@ -34,40 +34,56 @@
 /* Node, List, and Iterator are the only data structures used currently. */
 
 typedef struct listNode {
+    // 前置节点
     struct listNode *prev;
+    // 后置节点
     struct listNode *next;
+    // 节点的值
     void *value;
 } listNode;
 
+// 迭代器, 可以正序、逆序访问list结构
 typedef struct listIter {
+    // 指向下一个节点
     listNode *next;
+    // 方向参数，正序或逆序; 
+    // 0 --> 从头到尾
+    // 1 --> 从尾到头
     int direction;
 } listIter;
 
 typedef struct list {
+    // 表头节点
     listNode *head;
+    // 表尾节点
     listNode *tail;
+    // 节点值复杂函数
     void *(*dup)(void *ptr);
+    // 节点值释放函数
     void (*free)(void *ptr);
+    // 节点值对比函数
     int (*match)(void *ptr, void *key);
+    // 链表包含的节点数量
     unsigned long len;
 } list;
 
-/* Functions implemented as macros */
-#define listLength(l) ((l)->len)
-#define listFirst(l) ((l)->head)
-#define listLast(l) ((l)->tail)
-#define listPrevNode(n) ((n)->prev)
-#define listNextNode(n) ((n)->next)
-#define listNodeValue(n) ((n)->value)
+/* Functions implemented as macros 
+ * 宏定义函数
+ */
+#define listLength(l) ((l)->len) // 获取list长度
+#define listFirst(l) ((l)->head) // 获取list头节点指针
+#define listLast(l) ((l)->tail) // 获取list尾节点指针
+#define listPrevNode(n) ((n)->prev) // 获取当前节点前一个节点
+#define listNextNode(n) ((n)->next) // 获取当前节点后一个节点
+#define listNodeValue(n) ((n)->value) // 获取当前节点的值
 
-#define listSetDupMethod(l,m) ((l)->dup = (m))
-#define listSetFreeMethod(l,m) ((l)->free = (m))
-#define listSetMatchMethod(l,m) ((l)->match = (m))
+#define listSetDupMethod(l,m) ((l)->dup = (m)) // 设定节点值复制函数
+#define listSetFreeMethod(l,m) ((l)->free = (m)) // 设定节点值释放函数
+#define listSetMatchMethod(l,m) ((l)->match = (m)) // 设定节点值对比函数
 
-#define listGetDupMethod(l) ((l)->dup)
-#define listGetFreeMethod(l) ((l)->free)
-#define listGetMatchMethod(l) ((l)->match)
+#define listGetDupMethod(l) ((l)->dup) // 获取节点值复制函数
+#define listGetFreeMethod(l) ((l)->free) // 获取节点值释放函数
+#define listGetMatchMethod(l) ((l)->match) // 获取节点值对比函数
 
 /* Prototypes */
 list *listCreate(void);
