@@ -83,10 +83,12 @@ uint8_t *dictGetHashFunctionSeed(void) {
 uint64_t siphash(const uint8_t *in, const size_t inlen, const uint8_t *k);
 uint64_t siphash_nocase(const uint8_t *in, const size_t inlen, const uint8_t *k);
 
+// 使用MurmurHash2哈希算法
 uint64_t dictGenHashFunction(const void *key, int len) {
     return siphash(key,len,dict_hash_function_seed);
 }
 
+// 使用基于djb哈希的一种简单的哈希算法
 uint64_t dictGenCaseHashFunction(const unsigned char *buf, int len) {
     return siphash_nocase(buf,len,dict_hash_function_seed);
 }
